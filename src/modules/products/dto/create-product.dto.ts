@@ -43,6 +43,11 @@ export class CreateProductDto {
     @IsNotEmpty({ message: "Los tags del producto es un campo requerido" })
     public tags: string[];
 
+    // @IsArray({ message: "Los tags deben ser un array de String válida" })
+    @IsString({ message: "Los colores debe ser un String válido []" })
+    @IsNotEmpty({ message: "Los colores del producto es un campo requerido" })
+    public colors: string[];
+
     @IsString({ message: "El nombre del producto debe ser un String válido" })
     @MinLength(1, { message: "El nombre del producto además de requerida debe tener al menos 1 caracter" })
     @MaxLength(500, { message: "El nombre del producto además de requerida no debe sobre pasar los 500 caracteres" })

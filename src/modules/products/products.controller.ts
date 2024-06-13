@@ -8,64 +8,59 @@ import { MaxFileSizeValidator } from './validators/max-file-size-validator';
 import { FileTypeValidator } from './validators/file-type-validator';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { IErrorImages } from './interfaces/images.interface';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  // @Post()
+  // @Post('/create')
   // create(@Body() createProductDto: CreateProductDto) {
   //   // return this.productsService.create(createProductDto);
   //   return createProductDto;
   // }
 
-  @Post()
-  @UseInterceptors(
-    FilesInterceptor('images', 10, {
-      storage: diskStorage({
-        // destination: './uploads',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          return cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-      limits: {
-        files: 10, // Límite de 10 archivos
-      },
-    }),
-  )
+  @Post('/create')
+  @UseInterceptors(FilesInterceptor('imagesProducts', 10))
   async create(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() createProductDto: CreateProductDto,
   ){
 
-    //TODO: Validación de tamaño y tipo de archivo
-    //TODO: Validación para Cloudinary
-    //TODO: Implementación de Cloudinary
-    //TODO: PROYECTO GUÍA TEMPORAL -> 07-TALYBU-MOTEL
+    let errorsImages: IErrorImages[] = [];
+    let imagesNames: string[] = [];
+
     if (files) {
-      // const maxFileSizeValidator = new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }); // 4 MB
-      // const fileTypeValidator = new FileTypeValidator({ fileType: '.(png|jpg|jpeg)' });
 
-      // // Aplicar validaciones manualmente
-      // // Para manejar el control completo
-      // const errors = [];
-      // if (!maxFileSizeValidator.isValid(file)) {
-      //   errors.push(`File size should not exceed ${maxFileSizeValidator.maxSize} bytes`);
-      // }
+      const maxFileSizeValidator = new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }); // 4 MB
+      const fileTypeValidator = new FileTypeValidator({ fileType: '.(png|jpg|jpeg)' });
 
-      // if (!fileTypeValidator.isValid(file)) {
-      //   errors.push(`File type should be one of the following: ${fileTypeValidator.fileType}`);
-      // }
+      for (const iterImgs of files) {
+            
+        if (!maxFileSizeValidator.isValid(iterImgs)) {
+          errorsImages.push({
+            error: "El tamaño de la imagen sobrepasa las 4MB",
+            fileError: iterImgs.originalname
+          });
+        }
 
-      // if (errors.length > 0) {
-      //   throw new BadRequestException(errors.join(', '));
-      // }
+        if (!fileTypeValidator.isValid(iterImgs)) {
+          errorsImages.push({
+            error: "El formato de la imagen es diferente a .(png|jpg|jpeg)",
+            fileError: iterImgs.originalname
+          });
+        }
+
+        imagesNames.push(iterImgs.originalname);
+        
+      }
+      
       console.log('Files:', files);
 
+    }
+
+    if( errorsImages.length > 0 ){
+      throw new Error("Las imágenes proporcionadas no cumplen con los requerimientos mínimos")
     }
 
     // Aquí puedes manejar el DTO y el archivo si existe. 

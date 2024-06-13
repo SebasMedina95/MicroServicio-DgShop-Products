@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum ValidSizes {
+  XS
+  S
+  M
+  L
+  XL
+  XXL
+  XXXL
+}
+
+enum ValidTypes {
+  shirts
+  pants
+  hoodies
+  hats
+}
+
+model TBL_CATEGORIES {
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
+  description  String?
+  userCreateAt String?
+  createDateAt DateTime?
+  userUpdateAt String?
+  updateDateAt DateTime?
+  TBL_PRODUCTS TBL_PRODUCTS[]
+}
+
+model TBL_PRODUCTS {
+  id           Int        @id @default(autoincrement())
+  description  String     @unique
+  images       String
+  inStock      Int
+  price        Float
+  sizes        ValidSizes
+  slug         String     @unique
+  tags         String
+  colors       String
+  title        String     @unique
+  type         ValidTypes
+  userCreateAt String?
+  createDateAt DateTime?
+  userUpdateAt String?
+  updateDateAt DateTime?
+
+  category   TBL_CATEGORIES @relation(fields: [categoryId], references: [id])
+  categoryId Int
+}

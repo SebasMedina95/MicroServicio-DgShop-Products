@@ -1,9 +1,12 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { envs } from './config/envs';
 
 async function bootstrap() {
+
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap')
 
   //? Alias de la aplicación
   app.setGlobalPrefix('api-ms-dgshop/products/v1');
@@ -23,6 +26,8 @@ async function bootstrap() {
   //? Configuración del cors
   app.enableCors();
 
-  await app.listen(3707);
+  await app.listen( envs.port );
+  logger.log(`La APP está corriendo en puerto ${envs.port}`);
+
 }
 bootstrap();

@@ -11,6 +11,7 @@ export class Product {
     public sizes: ValidSizes[];
     public slug?: string;
     public tags: string[];
+    public colors: string[];
     public title: string;
     public type: ValidTypes;
     public categoryId: Category | number;

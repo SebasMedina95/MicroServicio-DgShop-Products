@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+
+  mysql-db:
+    image: mysql:8.4
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_MYSQL_DATABASE}
+      MYSQL_USER: ${DB_MYSQL_USER}
+      MYSQL_PASSWORD: ${DB_MYSQL_PASSWORD}
+    container_name: appdgshop-products
+    volumes:
+      - ./containers/mysql:/var/lib/mysql
+    ports:
+      - 5566:3306
