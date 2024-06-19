@@ -21,27 +21,38 @@ $ npm install
 ```bash
 $ docker compose up -d
 ```
-4. Configuración de la imagen de Docker. *Debemos realizar una configuración especial para la asignación de permisos al usuario que vamos a usar para las migraciones*, en las variables de entorno, tenemos definida a ``DB_MYSQL_USER``, este usuario debemos aplicarle los permisos para la generación de migraciones con PrismaORM, debe seguir los siguientes pasos ``después de haber levantado la imagen``:
+- Configuración de la imagen de Docker. *Debemos realizar una configuración especial para la asignación de permisos al usuario que vamos a usar para las migraciones tratandose de una BD MySQL*, en las variables de entorno, tenemos definida a ``DB_MYSQL_USER``, este usuario debemos aplicarle los permisos para la generación de migraciones con PrismaORM, debe seguir los siguientes pasos ``después de haber levantado la imagen``:
 
-- Ejecutamos el comando
-```bash
-$ docker exec -it <mysql-container-id> mysql -u root -p
-'Y remplace el <mysql-container-id> por el ID del contenedor que se creo'.
-'Puede verificar el id del contenedor con el comando: docker container ls'
-```
+- Luego de ubicar el ID de la imagen usando el comando de docker ``docker container ls`` para listar los contenedores, ejecutamos el comando:
+   ```bash
+   $ docker exec -it <mysql-container-id> mysql -u root -p
+   'Y remplace el <mysql-container-id> por el ID del contenedor que se creo'.
+   'Puede verificar el id del contenedor con el comando: docker container ls'
+   ```
 
-- Luego ejecutamos con base a las credenciales, nos pide la contraseña, la ``contraseña es el valor que le dimos a nuestra variable de entorno MYSQL_ROOT_PASSWORD`` 
+- Luego ejecutamos con base a las credenciales, nos pide la contraseña, la ``contraseña es el valor que le dimos a nuestra variable de entorno MYSQL_ROOT_PASSWORD`` cuando creamos las configuraciones del archivo *docker-compose.yml*.
 
 - Configuración: Ejecutamos el comando:
-```bash
-$ GRANT ALL PRIVILEGES ON *.* TO 'your_database_user'@'%' WITH GRANT OPTION;
-'Y remplazamos el 'your_database_user' por el usuario que le queremos asignar los permisos, la variable de entorno DB_MYSQL_USER'
-```
+   ```bash
+   $ GRANT ALL PRIVILEGES ON *.* TO 'your_database_user'@'%' WITH GRANT OPTION;
+   'Y remplazamos el 'your_database_user' por el usuario que le queremos asignar los permisos, la variable de entorno DB_MYSQL_USER'. 
+   OJO => Debemos incluir el punto y coma (;) en la ejecución del comando.
+   ```
 
 - Aplicamos los privilegios con el comando
-```bash
-$ FLUSH PRIVILEGES;
-```
+   ```bash
+   $ FLUSH PRIVILEGES;
+   'OJO => Debemos incluir el punto y coma (;) en la ejecución del comando.'
+   Al todo quedar OK, podemos salir con el comando exit
+   ```
+6. Ejecutamos las migraciones usando el comando de Prisma:
+   ```bash
+   $ npx prisma generate
+   ```
+7. Ejecutar para levantar el proyecto en modo desarrollo:
+   ```bash
+   $ npm run dev
+   ```
 
 - Si todo sale bien, podemos colocar el comando ``exit`` para salir de la terminal de MySQL.
 

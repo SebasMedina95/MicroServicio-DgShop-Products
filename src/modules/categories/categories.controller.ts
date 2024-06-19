@@ -1,34 +1,68 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller,
+         Get,
+         Post,
+         Body,
+         Patch,
+         Param,
+         Delete } from '@nestjs/common';
+
 import { CategoriesService } from './categories.service';
+
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { PageOptionsDto } from '../../helpers/paginations/dto/page-options.dto';
+import { PageDto } from '../../helpers/paginations/dto/page.dto';
+
+import { ApiTransactionResponse } from '../../util/ApiResponse';
+import { ICategory } from './interfaces/categories.interfaces';
 
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-  @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
+  @Post('/create')
+  async create(
+    @Body() createCategoryDto: CreateCategoryDto
+  ): Promise<ApiTransactionResponse<ICategory | string>> {
+
     return this.categoriesService.create(createCategoryDto);
+
   }
 
-  @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  @Get('/get-paginated')
+  async findAll(
+    @Body() pageOptionsDto: PageOptionsDto
+  ): Promise<PageDto<ICategory> | Object> {
+
+    return this.categoriesService.findAll(pageOptionsDto);
+
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
+  @Get('/get-by-id/:id')
+  async findOne(
+    @Param('id') id: number
+  ): Promise<ApiTransactionResponse<ICategory | string>> {
+
+    return this.categoriesService.findOne(id);
+
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+  @Patch('/update/:id')
+  async update(
+    @Param('id') id: number, 
+    @Body() updateCategoryDto: UpdateCategoryDto
+  ): Promise<ApiTransactionResponse<ICategory | string>> {
+
+    return this.categoriesService.update(id, updateCategoryDto);
+
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+  @Delete('/remove-logic/:id')
+  async remove(
+    @Param('id') id: number
+  ): Promise<ApiTransactionResponse<ICategory | string>> {
+
+    return this.categoriesService.remove(id);
+
   }
 }

@@ -1,26 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from '../../config/database/prisma.service';
+
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { PageDto } from '../../helpers/paginations/dto/page.dto';
+import { PageOptionsDto } from '../../helpers/paginations/dto/page-options.dto';
+
+import { MySqlErrorsExceptions } from '../../helpers/errors/exceptions-sql';
+import { ApiTransactionResponse } from '../../util/ApiResponse';
+import { ICategory } from './interfaces/categories.interfaces';
 
 @Injectable()
 export class CategoriesService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+
+  private readonly logger = new Logger('CategoriesService');
+  private readonly errorsSQL = new MySqlErrorsExceptions();
+
+  constructor(
+    private prisma: PrismaService
+  ){}
+
+  async create(createCategoryDto: CreateCategoryDto): Promise<ApiTransactionResponse<ICategory | string>> {
+
+    throw new Error("No implementado aún");
+
   }
 
-  findAll() {
-    return `This action returns all categories`;
+  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<ICategory> | Object> {
+
+    throw new Error("No implementado aún");
+
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: number): Promise<ApiTransactionResponse<ICategory | string>> {
+
+    throw new Error("No implementado aún");
+
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<ApiTransactionResponse<ICategory | string>> {
+
+    throw new Error("No implementado aún");
+
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number): Promise<ApiTransactionResponse<ICategory | string>> {
+
+    throw new Error("No implementado aún");
+
   }
+
 }
