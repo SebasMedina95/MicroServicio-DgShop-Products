@@ -150,19 +150,160 @@ export class CategoriesService {
 
   async findOne(id: number): Promise<ApiTransactionResponse<ICategory | string>> {
 
-    throw new Error("No implementado aún");
+    try {
+      
+      const getCategory = await this.prisma.tBL_CATEGORIES.findFirst({
+        where: {
+          AND: [
+            { id },
+            { status: true }
+          ]
+        }
+      });
+
+      if( !getCategory || getCategory == null ){
+        return new ApiTransactionResponse(
+          null,
+          EResponseCodes.FAIL,
+          `No pudo ser encontrado una categoría con el ID ${id}`
+        );
+      }
+
+      return new ApiTransactionResponse(
+        getCategory,
+        EResponseCodes.OK,
+        `Categoría obtenida correctamente`
+      );
+
+    } catch (error) {
+
+      this.logger.log(`Ocurrió un error al intentar obtener una categoría por su ID: ${error}`);
+      return new ApiTransactionResponse(
+        error,
+        EResponseCodes.FAIL,
+        "Ocurrió un error al intentar obtener una categoría por su ID"
+      );
+      
+    } finally {
+      
+      this.logger.log(`Obtener categoría por ID finalizada`);
+      await this.prisma.$disconnect();
+
+    }
 
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<ApiTransactionResponse<ICategory | string>> {
 
-    throw new Error("No implementado aún");
+    try {
+      
+      //Verificamos que exista el ID solicitado
+      const existCategoryById = await this.findOne(id);
+
+      if( existCategoryById.data == null ){
+        return new ApiTransactionResponse(
+          null,
+          EResponseCodes.FAIL,
+          `No pudo ser encontrado una categoría con el ID ${id}`
+        );
+      }
+
+      //Verificamos que no se repita el nombre que es Unique
+      const existCategoryByName = await this.prisma.tBL_CATEGORIES.findFirst({
+        where: { name: updateCategoryDto.name.trim().toUpperCase() }
+      });
+
+      if( existCategoryByName ){
+        if( existCategoryByName.id != id ){
+          return new ApiTransactionResponse(
+            null,
+            EResponseCodes.FAIL,
+            `Ya existe el nombre de la categoría`
+          );
+        }
+      }
+
+      //Llegamos hasta acá, actualizamos entonces:
+      const updateCategory = await this.prisma.tBL_CATEGORIES.update({
+        where: { id },
+        data: {
+          name: updateCategoryDto.name,
+          description: updateCategoryDto.description,
+          userUpdateAt: "123456789", //TODO -> Falta el tema de la auth.
+          updateDateAt: new Date(),
+        }
+      });
+
+      return new ApiTransactionResponse(
+        updateCategory,
+        EResponseCodes.OK,
+        "Categoría actualizada correctamente"
+      );
+
+    } catch (error) {
+
+      this.logger.log(`Ocurrió un error al intentar actualizar la categoría: ${error}`);
+      return new ApiTransactionResponse(
+        error,
+        EResponseCodes.FAIL,
+        "Ocurrió un error al intentar actualizar la categoría"
+      );
+      
+    } finally {
+      
+      this.logger.log(`Creación de categoría finalizada`);
+      await this.prisma.$disconnect();
+
+    }
 
   }
 
   async remove(id: number): Promise<ApiTransactionResponse<ICategory | string>> {
 
-    throw new Error("No implementado aún");
+    try {
+      
+      //Verificamos que exista el ID solicitado
+      const existCategoryById = await this.findOne(id);
+
+      if( existCategoryById.data == null ){
+        return new ApiTransactionResponse(
+          null,
+          EResponseCodes.FAIL,
+          `No pudo ser encontrado una categoría con el ID ${id}`
+        );
+      }
+
+      //Llegamos hasta acá, actualizamos entonces:
+      const updateCategory = await this.prisma.tBL_CATEGORIES.update({
+        where: { id },
+        data: {
+          status: false,
+          userUpdateAt: "123456789", //TODO -> Falta el tema de la auth.
+          updateDateAt: new Date(),
+        }
+      });
+
+      return new ApiTransactionResponse(
+        updateCategory,
+        EResponseCodes.OK,
+        "Categoría eliminada correctamente"
+      );
+      
+    } catch (error) {
+
+      this.logger.log(`Ocurrió un error al intentar eliminar lógicamente la categoría: ${error}`);
+      return new ApiTransactionResponse(
+        error,
+        EResponseCodes.FAIL,
+        "Ocurrió un error al intentar eliminar lógicamente la categoría"
+      );
+      
+    } finally {
+      
+      this.logger.log(`Creación de categoría finalizada`);
+      await this.prisma.$disconnect();
+
+    }
 
   }
 
