@@ -7,8 +7,8 @@ import { IsEnum,
          Min  } from "class-validator";
 
 export enum Order {
-    ASC = "ASC",
-    DESC = "DESC",
+    ASC = "asc",
+    DESC = "desc",
 }
 
 export class PageOptionsDto {

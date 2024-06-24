@@ -3,6 +3,7 @@ import * as joi from 'joi';
 
 interface EnvVars {
     PORT: number;
+    URL_DEV: string;
     DATABASE_URL: string;
     DB_MYSQL_ROOT_PASSWORD: string;
     DB_MYSQL_DATABASE: string;
@@ -16,6 +17,7 @@ interface EnvVars {
 
 const envsSchema = joi.object({
     PORT: joi.number().required(),
+    URL_DEV: joi.string().optional(),
     DATABASE_URL: joi.string().required(),
     DB_MYSQL_ROOT_PASSWORD: joi.string().required(),
     DB_MYSQL_DATABASE: joi.string().required(),
@@ -37,6 +39,7 @@ const envVars: EnvVars = value;
 
 export const envs = {
     port: envVars.PORT,
+    url_dev: envVars.URL_DEV,
     dbUrl: envVars.DATABASE_URL,
     dbMySqlRootPassword: envVars.DB_MYSQL_ROOT_PASSWORD,
     dbMySqlDataBase: envVars.DB_MYSQL_DATABASE,

@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import { IsNotEmpty,
          IsOptional,
          IsString,
@@ -10,6 +11,7 @@ export class CreateCategoryDto {
     @MinLength(1, { message: "El nombre la categoría además de requerida debe tener al menos 1 caracter" })
     @MaxLength(100, { message: "El nombre la categoría además de requerida no debe sobre pasar los 500 caracteres" })
     @IsNotEmpty({ message: "El nombre la categoría es un campo requerido" })
+    @Transform(({ value }) => value.trim().toUpperCase())
     public name: string;
 
     @IsString({ message: "El nombre la categoría debe ser un String válido" })

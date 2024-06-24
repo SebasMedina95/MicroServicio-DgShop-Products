@@ -51,7 +51,7 @@ $ docker compose up -d
    ```
 7. Ejecutar para levantar el proyecto en modo desarrollo:
    ```bash
-   $ npm run dev
+   $ npm run start:dev
    ```
 
 - Si todo sale bien, podemos colocar el comando ``exit`` para salir de la terminal de MySQL.
@@ -71,3 +71,7 @@ $ docker compose up -d
     ```
     npx prisma generate
     ```
+
+## Pendiente ##
+EMPEZAR A TRABAJAR CON LOS SERVICIOS DE LAS CATEGORIAS, PRIMERO DEBEMOS PODER GESTIONAR 
+LAS CATEGORÍAS PARA LUEGO GESTIONAR LOS PRODUCTOS

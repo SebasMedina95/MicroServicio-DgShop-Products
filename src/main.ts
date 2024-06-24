@@ -27,7 +27,8 @@ async function bootstrap() {
   app.enableCors();
 
   await app.listen( envs.port );
-  logger.log(`La APP está corriendo en puerto ${envs.port}`);
+  logger.log(`La API está corriendo en puerto: ${envs.port}`);
+  logger.log(`La url general de la API es: ${envs.url_dev}`);
 
 }
 bootstrap();

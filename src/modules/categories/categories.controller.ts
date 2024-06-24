@@ -12,6 +12,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PageOptionsDto } from '../../helpers/paginations/dto/page-options.dto';
 import { PageDto } from '../../helpers/paginations/dto/page.dto';
+import { CustomError } from '../../helpers/errors/custom.error';
 
 import { ApiTransactionResponse } from '../../util/ApiResponse';
 import { ICategory } from './interfaces/categories.interfaces';
@@ -23,7 +24,7 @@ export class CategoriesController {
   @Post('/create')
   async create(
     @Body() createCategoryDto: CreateCategoryDto
-  ): Promise<ApiTransactionResponse<ICategory | string>> {
+  ): Promise<ApiTransactionResponse<ICategory | CustomError>> {
 
     return this.categoriesService.create(createCategoryDto);
 
