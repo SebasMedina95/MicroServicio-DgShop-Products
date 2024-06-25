@@ -21,27 +21,25 @@ export class CreateProviderDto {
     @IsOptional()
     public address?: string;
 
-    @IsNumber({}, { message: "El número de teléfono 1 del proveedor debe ser un Number válido" })
+    @IsString({ message: "El número de teléfono 1 del proveedor debe ser un String válido" })
     @MaxLength(40, { message: "El número de teléfono 1 del proveedor además de requerida no debe sobre pasar los 40 caracteres" })
-    @IsOptional()
-    public phone1?: number;
+    public phone1: string;
 
-    @IsNumber({}, { message: "El número de teléfono 2 del proveedor debe ser un Number válido" })
-    @MaxLength(40, { message: "El número de teléfono 2 del proveedor además de requerida no debe sobre pasar los 40 caracteres" })
+    // @IsNumber({}, { message: "El número de teléfono 2 del proveedor debe ser un Number válido" })
+    // @MaxLength(40, { message: "El número de teléfono 2 del proveedor además de requerida no debe sobre pasar los 40 caracteres" })
     @IsOptional()
-    public phone2?: number;
+    public phone2?: string | null;
 
     @IsEmail({}, { message: "El email 1 del proveedor debe ser un String válido" })
     @MaxLength(150, { message: "El email 1 del proveedor además de requerida no debe sobre pasar los 150 caracteres" })
-    @IsOptional()
-    public email1?: string;
+    public email1: string;
 
-    @IsEmail({}, { message: "El email 2 del proveedor debe ser un String válido" })
-    @MaxLength(150, { message: "El email 2 del proveedor además de requerida no debe sobre pasar los 150 caracteres" })
+    // @IsEmail({}, { message: "El email 2 del proveedor debe ser un String válido" })
+    // @MaxLength(150, { message: "El email 2 del proveedor además de requerida no debe sobre pasar los 150 caracteres" })
     @IsOptional()
-    public email2?: string;
+    public email2?: string | null;
 
-    @IsString({ message: "La descripción del proveedor debe ser un String válido" })
+    //@IsString({ message: "La descripción del proveedor debe ser un String válido" })
     @MaxLength(5000, { message: "La descripción del proveedor además de requerida no debe sobre pasar los 500 caracteres" })
     @IsOptional()
     public description?: string;
