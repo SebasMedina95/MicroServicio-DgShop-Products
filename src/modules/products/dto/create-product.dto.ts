@@ -1,13 +1,14 @@
-import { IsArray,
-         IsNotEmpty,
+import { IsNotEmpty,
          IsNumber,
-         IsOptional,
          IsPositive,
          IsString,
          MaxLength,
          Min,
          MinLength } from "class-validator";
 import { ValidSizes, ValidTypes } from "../../../types/product.type";
+import { Category } from "../../../modules/categories/entities/category.entity";
+import { Provider } from "../../../modules/providers/entities/provider.entity";
+import { Transform } from "class-transformer";
 
 export class CreateProductDto {
     
@@ -16,11 +17,6 @@ export class CreateProductDto {
     @MaxLength(5000, { message: "La descripción además de requerida no debe sobre pasar los 5000 caracteres" })
     @IsNotEmpty({ message: "La descripción es un campo requerido" })
     public description: string;
-
-    // @IsArray({ message: "Las imágenes deben ser un array de String/Urls válidas" })
-    @IsString({ message: "Las imágenes debe ser un String válido []" })
-    @IsOptional()
-    public images: string[];
 
     @IsNumber({}, {message: "La cantidad en Stock no debe ser negativa"})
     @Min(0)
@@ -33,20 +29,17 @@ export class CreateProductDto {
     @IsNotEmpty({ message: "El precio es un campo requerido" })
     public price: number;
 
-    // @IsArray({ message: "Las tallas deben ser un array de String válida" })
     @IsString({ message: "Las tallas debe ser un String válido []" })
     @IsNotEmpty({ message: "Las tallas son un campo requerido" })
-    public sizes: ValidSizes[] | string;
+    public sizes: string;
 
-    // @IsArray({ message: "Los tags deben ser un array de String válida" })
     @IsString({ message: "Los tags debe ser un String válido []" })
     @IsNotEmpty({ message: "Los tags del producto es un campo requerido" })
-    public tags: string[];
+    public tags: string;
 
-    // @IsArray({ message: "Los tags deben ser un array de String válida" })
     @IsString({ message: "Los colores debe ser un String válido []" })
     @IsNotEmpty({ message: "Los colores del producto es un campo requerido" })
-    public colors: string[];
+    public colors: string;
 
     @IsString({ message: "El nombre del producto debe ser un String válido" })
     @MinLength(1, { message: "El nombre del producto además de requerida debe tener al menos 1 caracter" })
@@ -58,10 +51,16 @@ export class CreateProductDto {
     @MinLength(1, { message: "El tipo además de requerida debe tener al menos 1 caracter" })
     @MaxLength(50, { message: "El tipo además de requerida no debe sobre pasar los 50 caracteres" })
     @IsNotEmpty({ message: "El tipo es un campo requerido" })
-    public type: ValidTypes;
+    public type: string;
 
+    @Transform(({ value }) => Number(value))
     @IsNumber({}, { message: "El id de la categoría debe ser numérico" })
     @IsNotEmpty({ message: "El id de la categoría es un campo requerido" })
-    public categoryId: number;
+    public categoryId: Category | number;
+
+    @Transform(({ value }) => Number(value))
+    @IsNumber({}, { message: "El id del proveedor debe ser numérico" })
+    @IsNotEmpty({ message: "El id del proveedor es un campo requerido" })
+    public providerId: Provider | number;
 
 }

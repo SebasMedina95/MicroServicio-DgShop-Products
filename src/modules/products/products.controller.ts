@@ -1,31 +1,37 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, ParseFilePipe, BadRequestException, UploadedFiles } from '@nestjs/common';
+import { Controller,
+         Get,
+         Post,
+         Body,
+         Patch,
+         Param,
+         Delete,
+         UseInterceptors,
+         UploadedFiles } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 import { MaxFileSizeValidator } from './validators/max-file-size-validator';
 import { FileTypeValidator } from './validators/file-type-validator';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { IErrorImages } from './interfaces/images.interface';
+
+import { IErrorImages, IProducts } from './interfaces/products.interface';
+import { ApiTransactionResponse } from '../../util/ApiResponse';
+import { CustomError } from '../../helpers/errors/custom.error';
+import { EResponseCodes } from 'src/constants/ResponseCodesEnum';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
 
-  // @Post('/create')
-  // create(@Body() createProductDto: CreateProductDto) {
-  //   // return this.productsService.create(createProductDto);
-  //   return createProductDto;
-  // }
+  constructor(private readonly productsService: ProductsService) {}
 
   @Post('/create')
   @UseInterceptors(FilesInterceptor('imagesProducts', 10))
   async create(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() createProductDto: CreateProductDto,
-  ){
+  ): Promise<ApiTransactionResponse<IProducts | string | IErrorImages[] | CustomError>> {
 
     let errorsImages: IErrorImages[] = [];
     let imagesNames: string[] = [];
@@ -54,19 +60,34 @@ export class ProductsController {
         imagesNames.push(iterImgs.originalname);
         
       }
-      
-      console.log('Files:', files);
 
     }
 
     if( errorsImages.length > 0 ){
-      throw new Error("Las imágenes proporcionadas no cumplen con los requerimientos mínimos")
+      return new ApiTransactionResponse(
+        errorsImages,
+        EResponseCodes.FAIL,
+        "Las imágenes de los productos tienen errores, revise."
+      );
     }
 
-    // Aquí puedes manejar el DTO y el archivo si existe. 
-    console.log('DTO:', createProductDto);
+    // Aquí puedes manejar el DTO y el archivo si existe.
+    //? Registremos primero el producto
+    const saveProduct = await this.productsService.create(createProductDto);
+    if( saveProduct instanceof CustomError  ){
+      return new ApiTransactionResponse(
+        saveProduct.message,
+        EResponseCodes.FAIL,
+        "Ocurrieron errores, no se pudo registrar el producto."
+      );
+    }
 
-    return createProductDto;
+    //? Registramos las imágenes
+    if( files && errorsImages.length == 0 ){
+
+    }
+
+    return;
 
   }
 
