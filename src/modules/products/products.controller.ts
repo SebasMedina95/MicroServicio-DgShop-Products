@@ -130,7 +130,7 @@ export class ProductsController {
 
   }
 
-  @Get(':id')
+  @Get('/get-by-id/:id')
   async findOne(
     @Param('id') id: number
   ): Promise<ApiTransactionResponse<IProducts | string>> {
@@ -139,17 +139,117 @@ export class ProductsController {
 
   }
 
-  @Patch(':id')
+  @Patch('/update/:id')
+  @UseInterceptors(FilesInterceptor('imagesProducts', 10))
   async update(
-    @Param('id') id: number, 
+    @Param('id') id: number,
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() updateProductDto: UpdateProductDto
-  ): Promise<ApiTransactionResponse<IProducts | string>> {
+  ): Promise<ApiTransactionResponse<IProducts | string | IErrorImages[] | CustomError>> {
 
-    return this.productsService.update(id, updateProductDto);
+    let errorsImages: IErrorImages[] = [];
+    let imagesNames: string[] = [];
+
+    //1. Si viene imagenes
+    if( files ){
+      
+      //1.1 Validamos imágenes
+      const maxFileSizeValidator = new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }); // 4 MB
+      const fileTypeValidator = new FileTypeValidator({ fileType: '.(png|jpg|jpeg)' });
+
+      for (const iterImgs of files) {
+            
+        if (!maxFileSizeValidator.isValid(iterImgs)) {
+          errorsImages.push({
+            error: "El tamaño de la imagen sobrepasa las 4MB",
+            fileError: iterImgs.originalname
+          });
+        }
+
+        if (!fileTypeValidator.isValid(iterImgs)) {
+          errorsImages.push({
+            error: "El formato de la imagen es diferente a .(png|jpg|jpeg)",
+            fileError: iterImgs.originalname
+          });
+        }
+
+        imagesNames.push(iterImgs.originalname);
+        
+      }
+
+      if( errorsImages.length > 0 ){
+        return new ApiTransactionResponse(
+          errorsImages,
+          EResponseCodes.FAIL,
+          "Las imágenes de los productos tienen errores, revise."
+        );
+      }
+
+      //1.2 Borramos los que estén registrados anteriormente (Es decir que desde el Front nos deben garantizar esto)
+      const getImages = await this.productsService.imagesByProduct(id);
+      if( getImages.length > 0 ){
+
+        //Las removemos de Cloudinary
+        for (const iterImages of getImages) {
+
+          const arrayName = iterImages.url.split('/');
+          const getName = arrayName[arrayName.length - 1];
+          const [ name , ext ] = getName.split('.');
+
+          //Borramos con una función propia de cloudinary
+          await this.cloudinaryService.deleteFile(name);
+
+        }
+
+        //Las removemos de la base de datos
+        await this.productsService.deleteImagesByProduct(id);
+
+      }
+
+      //1.3 Registramos nuevamente o registramos la primera vez
+      if( files && errorsImages.length == 0 ){
+
+        for (const iterImages of files){
+
+          let executeFile = this.cloudinaryService.uploadFile(iterImages);
+
+          executeFile.then( async(p)  => {
+
+            const url_cloudinary = p.url;
+            const objReg: IImagesSimpleTable = {
+              url: url_cloudinary,
+              productId: id
+            }
+    
+            await this.productsService.createImages(objReg);
+    
+          })
+
+        }
+
+      } 
+
+    } //Si vamos a manejar archivos / imágenes
+
+    //2. Actualizar producto
+    const updateProduct = await this.productsService.update(id, updateProductDto);
+    if( updateProduct instanceof CustomError  ){
+      return new ApiTransactionResponse(
+        updateProduct.message,
+        EResponseCodes.FAIL,
+        "Ocurrieron errores, no se pudo actualizar el producto."
+      );
+    }
+
+    return new ApiTransactionResponse(
+      updateProduct,
+      EResponseCodes.OK,
+      "Producto actualizado correctamente."
+    );
 
   }
 
-  @Delete(':id')
+  @Delete('/remove-logic/:id')
   async remove(
     @Param('id') id: number
   ): Promise<ApiTransactionResponse<IProducts | string>> {

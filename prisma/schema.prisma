@@ -53,6 +53,7 @@ model TBL_PRODUCTS {
   colors       String    @db.VarChar(500)
   title        String    @unique @db.VarChar(200)
   type         String    @db.VarChar(500)
+  status       Boolean   @default(true)
   userCreateAt String?   @db.VarChar(30)
   createDateAt DateTime?
   userUpdateAt String?   @db.VarChar(30)

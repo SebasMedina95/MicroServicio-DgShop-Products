@@ -300,7 +300,7 @@ export class CategoriesService {
       
     } finally {
       
-      this.logger.log(`Creación de categoría finalizada`);
+      this.logger.log(`Eliminación lógica de categoría finalizada`);
       await this.prisma.$disconnect();
 
     }

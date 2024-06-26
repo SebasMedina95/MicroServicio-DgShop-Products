@@ -4,8 +4,8 @@ export class Provider {
     public name: string;
     public status: boolean;
     public address?: string;
-    public phone1?: number;
-    public phone2?: number;
+    public phone1?: string;
+    public phone2?: string;
     public email1?: string;
     public email2?: string;
     public description?: string;

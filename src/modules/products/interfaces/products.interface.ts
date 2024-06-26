@@ -36,8 +36,10 @@ export interface IProducts {
     title: string;
     type: string;
 
-    categoryId?: Category | number;
-    providerId?: Provider | number;
+    categoryId?: number;
+    providerId?: number;
+    category?: Category;
+    provider?: Provider;
     images?: IImagesSimpleTable[];
 
     userCreateAt?: string;
