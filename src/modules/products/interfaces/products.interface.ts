@@ -21,6 +21,7 @@ export interface IErrorImages {
 export interface IImagesSimpleTable {
     id?: number;
     url: string;
+    productId?: number;
 }
 
 export interface IProducts {
@@ -28,12 +29,12 @@ export interface IProducts {
     description: string;
     inStock: number;
     price: number;
-    sizes: ValidSizes[] | string[];
+    sizes: string;
     slug?: string;
-    tags: string[];
-    colors: string[];
+    tags: string;
+    colors: string;
     title: string;
-    type: ValidTypes;
+    type: string;
 
     categoryId?: Category | number;
     providerId?: Provider | number;

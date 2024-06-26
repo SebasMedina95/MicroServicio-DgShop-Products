@@ -4,12 +4,14 @@ import { PrismaService } from '../../config/database/prisma.service';
 import { ValidSizes, ValidSizesArray, ValidTypes, ValidTypesArray } from '../../types/product.type';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { IErrorImages, IProducts } from './interfaces/products.interface';
+import { IErrorImages, IImagesSimpleTable, IProducts } from './interfaces/products.interface';
 
 import { ApiTransactionResponse } from '../../util/ApiResponse';
 import { EResponseCodes } from '../../constants/ResponseCodesEnum';
 import { CustomError } from '../../helpers/errors/custom.error';
 import { MySqlErrorsExceptions } from '../../helpers/errors/exceptions-sql';
+import { PageOptionsDto } from 'src/helpers/paginations/dto/page-options.dto';
+import { PageDto } from 'src/helpers/paginations/dto/page.dto';
 
 @Injectable()
 export class ProductsService {
@@ -28,14 +30,17 @@ export class ProductsService {
     const applySplitSizes: string[] = getSizesFromRequest.split(',');
     
     let sizeValid: string[] = [];
+    let sizeInvalid: string[] = [];
     for (const iterSizes of applySplitSizes) {
       if( !ValidSizesArray.includes(iterSizes) ){
-        sizeValid.push(iterSizes)
+        sizeInvalid.push(iterSizes);
+      }else{
+        sizeValid.push(iterSizes);
       }
     }
 
-    if( sizeValid.length > 0 ){
-      return CustomError.badRequestError(`Las siguientes tallas son inválidas: ${sizeValid}`);
+    if( sizeInvalid.length > 0 ){
+      return CustomError.badRequestError(`Las siguientes tallas son inválidas: ${sizeInvalid}`);
     }
 
     //2. Ajustemos los types
@@ -43,14 +48,17 @@ export class ProductsService {
     const applySplitTypes: string[] = getTypesFromRequest.split(',');
 
     let typeValid: string[] = [];
+    let typeInvalid: string[] = [];
     for (const iterTypes of applySplitTypes) {
       if( !ValidTypesArray.includes(iterTypes) ){
-        typeValid.push(iterTypes)
+        typeInvalid.push(iterTypes);
+      }else{
+        typeValid.push(iterTypes);
       }
     }
 
-    if( typeValid.length > 0 ){
-      return CustomError.badRequestError(`Los siguientes tipos son inválidos: ${typeValid}`);
+    if( typeInvalid.length > 0 ){
+      return CustomError.badRequestError(`Los siguientes tipos son inválidos: ${typeInvalid}`);
     }
 
     //3. Ajustamos los tags
@@ -83,29 +91,93 @@ export class ProductsService {
     slug = slug.replace(/^_+/, ''); // Eliminar guiones bajos al inicio
     slug = slug.replace(/_+$/, ''); // Eliminar guiones bajos al final
     slug = slug.trim(); // Elimino espacios residuales al principio y al final
-    console.log({slug});
 
     //6. Validamos no repetición de name ni slug
+    const getProductsByNameAndSlug = await this.prisma.tBL_PRODUCTS.findMany({
+      where: {
+        OR: [
+          { title: createProductDto.title },
+          { slug }
+        ]
+      }
+    })
+
+    if( getProductsByNameAndSlug.length > 0 )
+      return CustomError.badRequestError(`El nombre/slug ya se encuentra registrado`);
+
     //7. Validamos existencia de categoría y proveedor
-    //8. Guardamos.
+    const getCategory = await this.prisma.tBL_CATEGORIES.findFirst({ where: { id: Number(createProductDto.categoryId) } });
+    const getProvider = await this.prisma.tBL_PROVIDERS.findFirst({ where: { id: Number(createProductDto.providerId) } });
+
+    if( !getCategory ) return CustomError.badRequestError(`No existe la categoría que intenta seleccionar`);
+    if( !getProvider ) return CustomError.badRequestError(`No existe el proveedor que intenta seleccionar`);
+
+    //8. Guardamos (Solo el producto sin imágenes aún).
+
+    const saveProduct = await this.prisma.tBL_PRODUCTS.create({
+      data: {
+        description: createProductDto.description,
+        inStock: createProductDto.inStock,
+        price: createProductDto.price,
+        sizes: JSON.stringify(sizeValid), //Se guardan arrays como Strings
+        tags: JSON.stringify(tagsValid), //Se guardan arrays como Strings
+        colors: JSON.stringify(colorsValid), //Se guardan arrays como Strings
+        title: createProductDto.title,
+        slug,
+        type: JSON.stringify(typeValid), //Se guardan arrays como Strings
+        categoryId: Number(createProductDto.categoryId),
+        providerId: Number(createProductDto.providerId),
+        userCreateAt: "123456789", //TODO: Pendiente del auth
+        createDateAt: new Date(),
+        userUpdateAt: "123456789", //TODO: Pendiente del auth
+        updateDateAt: new Date(),
+      }
+    })
+
+    return saveProduct;
+
+  }
+
+  async createImages(obj: IImagesSimpleTable): Promise<boolean> {
+
+    const { id, url, productId } = obj;
+
+    const saveImage = await this.prisma.tBL_IMAGES.create({
+      data: {
+        url,
+        productId,
+        userCreateAt: "123456789", //TODO: Pendiente de auth
+        createDateAt: new Date()
+      }
+    });
+
+    if( saveImage ) return true;
+
+    return false;
+
+  }
+
+  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<IProducts> | Object> {
     
-    throw new Error("En proceso de implementación");
-
+    throw new Error(`Pendiente de implementación`);
+    
   }
 
-  findAll() {
-    return `This action returns all products`;
+  async findOne(id: number): Promise<ApiTransactionResponse<IProducts | string>> {
+    
+    throw new Error(`Pendiente de implementación`);
+    
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async update(id: number, updateProductDto: UpdateProductDto): Promise<ApiTransactionResponse<IProducts | string>> {
+    
+    throw new Error(`Pendiente de implementación`);
+    
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: number): Promise<ApiTransactionResponse<IProducts | string>> {
+    
+    throw new Error(`Pendiente de implementación`);
+    
   }
 }

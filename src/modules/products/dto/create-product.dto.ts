@@ -5,9 +5,6 @@ import { IsNotEmpty,
          MaxLength,
          Min,
          MinLength } from "class-validator";
-import { ValidSizes, ValidTypes } from "../../../types/product.type";
-import { Category } from "../../../modules/categories/entities/category.entity";
-import { Provider } from "../../../modules/providers/entities/provider.entity";
 import { Transform } from "class-transformer";
 
 export class CreateProductDto {
@@ -56,11 +53,11 @@ export class CreateProductDto {
     @Transform(({ value }) => Number(value))
     @IsNumber({}, { message: "El id de la categoría debe ser numérico" })
     @IsNotEmpty({ message: "El id de la categoría es un campo requerido" })
-    public categoryId: Category | number;
+    public categoryId: number;
 
     @Transform(({ value }) => Number(value))
     @IsNumber({}, { message: "El id del proveedor debe ser numérico" })
     @IsNotEmpty({ message: "El id del proveedor es un campo requerido" })
-    public providerId: Provider | number;
+    public providerId: number;
 
 }
