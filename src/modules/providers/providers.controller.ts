@@ -1,10 +1,5 @@
-import { Controller,
-         Get,
-         Post,
-         Body,
-         Patch,
-         Param,
-         Delete } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 import { ProvidersService } from './providers.service';
 
@@ -21,46 +16,45 @@ import { IProvider } from './interfaces/providers.interface';
 export class ProvidersController {
   constructor(private readonly providersService: ProvidersService) {}
 
-  @Post('/create')
+  @MessagePattern({ cmd: 'create_provider' })
   async create(
-    @Body() createProviderDto: CreateProviderDto
+    @Payload() createProviderDto: CreateProviderDto
   ): Promise<ApiTransactionResponse<IProvider | CustomError>> {
 
     return this.providersService.create(createProviderDto);
 
   }
 
-  @Get('/get-paginated')
+  @MessagePattern({ cmd: 'get_providers_paginated' })
   async findAll(
-    @Body() pageOptionsDto: PageOptionsDto
+    @Payload() pageOptionsDto: PageOptionsDto
   ): Promise<PageDto<IProvider> | Object> {
 
     return this.providersService.findAll(pageOptionsDto);
 
   }
 
-  @Get('/get-by-id/:id')
+  @MessagePattern({ cmd: '/get_provider_by_id' })
   async findOne(
-    @Param('id') id: number
+    @Payload('id') id: number
   ): Promise<ApiTransactionResponse<IProvider | string>> {
 
     return this.providersService.findOne(id);
 
   }
 
-  @Patch('/update/:id')
+  @MessagePattern({ cmd: 'update_provider' })
   async update(
-    @Param('id') id: number, 
-    @Body() updateProviderDto: UpdateProviderDto
+    @Payload() updateProviderDto: UpdateProviderDto
   ): Promise<ApiTransactionResponse<IProvider | string>> {
 
-    return this.providersService.update(id, updateProviderDto);
+    return this.providersService.update(updateProviderDto.id, updateProviderDto);
 
   }
 
-  @Delete('/remove-logic/:id')
+  @MessagePattern({ cmd: 'remove_logic_provider' })
   async remove(
-    @Param('id') id: number
+    @Payload('id') id: number
   ): Promise<ApiTransactionResponse<IProvider | string>> {
 
     return this.providersService.remove(id);

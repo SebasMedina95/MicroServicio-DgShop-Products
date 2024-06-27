@@ -8,6 +8,7 @@ import { Controller,
          UseInterceptors,
          UploadedFiles } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 import { ProductsService } from './products.service';
 import { FilesService } from '../../helpers/files/files.service';
@@ -33,11 +34,11 @@ export class ProductsController {
     private readonly cloudinaryService: FilesService
   ) {}
 
-  @Post('/create')
-  @UseInterceptors(FilesInterceptor('imagesProducts', 10))
+  @MessagePattern({ cmd: 'create_product' })
+  @UseInterceptors(FilesInterceptor('imagesProducts', 10)) //TODO -> Revisar para los microservicios
   async create(
-    @UploadedFiles() files: Array<Express.Multer.File>,
-    @Body() createProductDto: CreateProductDto,
+    @Payload() files: Array<Express.Multer.File>, //TODO -> Revisar para los microservicios
+    @Payload() createProductDto: CreateProductDto,
   ): Promise<ApiTransactionResponse<IProducts | string | IErrorImages[] | CustomError>> {
 
     let errorsImages: IErrorImages[] = [];
@@ -121,30 +122,29 @@ export class ProductsController {
 
   }
 
-  @Get('/get-paginated')
+  @MessagePattern({ cmd: 'get_products_paginated' })
   async findAll(
-    @Body() pageOptionsDto: PageOptionsDto
+    @Payload() pageOptionsDto: PageOptionsDto
   ): Promise<PageDto<IProducts> | Object> {
 
     return this.productsService.findAll(pageOptionsDto);
 
   }
 
-  @Get('/get-by-id/:id')
+  @MessagePattern({ cmd: '/get_product_by_id' })
   async findOne(
-    @Param('id') id: number
+    @Payload('id') id: number
   ): Promise<ApiTransactionResponse<IProducts | string>> {
 
     return this.productsService.findOne(id);
 
   }
 
-  @Patch('/update/:id')
-  @UseInterceptors(FilesInterceptor('imagesProducts', 10))
+  @MessagePattern({ cmd: 'update_product' })
+  @UseInterceptors(FilesInterceptor('imagesProducts', 10)) //TODO -> Revisar para los microservicios
   async update(
-    @Param('id') id: number,
-    @UploadedFiles() files: Array<Express.Multer.File>,
-    @Body() updateProductDto: UpdateProductDto
+    @Payload() files: Array<Express.Multer.File>, //TODO -> Revisar para los microservicios
+    @Payload() updateProductDto: UpdateProductDto
   ): Promise<ApiTransactionResponse<IProducts | string | IErrorImages[] | CustomError>> {
 
     let errorsImages: IErrorImages[] = [];
@@ -186,7 +186,7 @@ export class ProductsController {
       }
 
       //1.2 Borramos los que estén registrados anteriormente (Es decir que desde el Front nos deben garantizar esto)
-      const getImages = await this.productsService.imagesByProduct(id);
+      const getImages = await this.productsService.imagesByProduct(Number(updateProductDto.id));
       if( getImages.length > 0 ){
 
         //Las removemos de Cloudinary
@@ -202,7 +202,7 @@ export class ProductsController {
         }
 
         //Las removemos de la base de datos
-        await this.productsService.deleteImagesByProduct(id);
+        await this.productsService.deleteImagesByProduct(Number(updateProductDto.id));
 
       }
 
@@ -218,7 +218,7 @@ export class ProductsController {
             const url_cloudinary = p.url;
             const objReg: IImagesSimpleTable = {
               url: url_cloudinary,
-              productId: id
+              productId: Number(updateProductDto.id)
             }
     
             await this.productsService.createImages(objReg);
@@ -232,7 +232,7 @@ export class ProductsController {
     } //Si vamos a manejar archivos / imágenes
 
     //2. Actualizar producto
-    const updateProduct = await this.productsService.update(id, updateProductDto);
+    const updateProduct = await this.productsService.update(Number(updateProductDto.id), updateProductDto);
     if( updateProduct instanceof CustomError  ){
       return new ApiTransactionResponse(
         updateProduct.message,
@@ -249,9 +249,9 @@ export class ProductsController {
 
   }
 
-  @Delete('/remove-logic/:id')
+  @MessagePattern({ cmd: 'remove_logic_product' })
   async remove(
-    @Param('id') id: number
+    @Payload('id') id: number
   ): Promise<ApiTransactionResponse<IProducts | string>> {
 
     return this.productsService.remove(id);

@@ -1,10 +1,5 @@
-import { Controller,
-         Get,
-         Post,
-         Body,
-         Patch,
-         Param,
-         Delete } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 import { CategoriesService } from './categories.service';
 
@@ -21,46 +16,45 @@ import { ICategory } from './interfaces/categories.interfaces';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-  @Post('/create')
+  @MessagePattern({ cmd: 'create_category' })
   async create(
-    @Body() createCategoryDto: CreateCategoryDto
+    @Payload() createCategoryDto: CreateCategoryDto
   ): Promise<ApiTransactionResponse<ICategory | CustomError>> {
 
     return this.categoriesService.create(createCategoryDto);
 
   }
 
-  @Get('/get-paginated')
+  @MessagePattern({ cmd: 'get_categories_paginated' })
   async findAll(
-    @Body() pageOptionsDto: PageOptionsDto
+    @Payload() pageOptionsDto: PageOptionsDto
   ): Promise<PageDto<ICategory> | Object> {
 
     return this.categoriesService.findAll(pageOptionsDto);
 
   }
 
-  @Get('/get-by-id/:id')
+  @MessagePattern({ cmd: '/get_category_by_id' })
   async findOne(
-    @Param('id') id: number
+    @Payload('id') id: number
   ): Promise<ApiTransactionResponse<ICategory | string>> {
 
     return this.categoriesService.findOne(id);
 
   }
 
-  @Patch('/update/:id')
+  @MessagePattern({ cmd: 'update_category' })
   async update(
-    @Param('id') id: number, 
-    @Body() updateCategoryDto: UpdateCategoryDto
+    @Payload() updateCategoryDto: UpdateCategoryDto
   ): Promise<ApiTransactionResponse<ICategory | string>> {
 
-    return this.categoriesService.update(id, updateCategoryDto);
+    return this.categoriesService.update(updateCategoryDto.id, updateCategoryDto);
 
   }
 
-  @Delete('/remove-logic/:id')
+  @MessagePattern({ cmd: 'remove_logic_category' })
   async remove(
-    @Param('id') id: number
+    @Payload('id') id: number
   ): Promise<ApiTransactionResponse<ICategory | string>> {
 
     return this.categoriesService.remove(id);
