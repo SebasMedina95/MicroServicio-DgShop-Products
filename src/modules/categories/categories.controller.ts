@@ -34,7 +34,7 @@ export class CategoriesController {
 
   }
 
-  @MessagePattern({ cmd: '/get_category_by_id' })
+  @MessagePattern({ cmd: 'get_category_by_id' })
   async findOne(
     @Payload('id') id: number
   ): Promise<ApiTransactionResponse<ICategory | string>> {
