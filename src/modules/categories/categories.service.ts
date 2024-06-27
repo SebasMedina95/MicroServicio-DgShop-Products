@@ -94,7 +94,8 @@ export class CategoriesService {
         //* Haremos el filtro así porque, el insensitve de prisma para MySQL con Docker toca aplicar otras configuraciones
         const getInitial = initialGet.filter( 
             item => item.name.toLowerCase().includes(search.trim().toLowerCase()) || 
-                    item.description.toLowerCase().includes(search.trim().toLowerCase()));
+                    (item.description && item.description.toLowerCase().includes(search.trim().toLowerCase()))
+            );
 
         //* Ahora si apliquemos la paginación y el ordenamiento manualmente.
         const getSort = getInitial.sort((a, b) => {

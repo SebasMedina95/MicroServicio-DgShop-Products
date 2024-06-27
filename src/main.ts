@@ -38,7 +38,7 @@ async function bootstrap() {
   await app.listen();
   // await app.listen( envs.port );
   logger.log(`Microservicio corriendo en puerto: ${envs.port}`);
-  logger.log(`La url general de la API es: ${envs.url_dev}`);
+  // logger.log(`La url general de la API es: ${envs.url_dev}`);
 
 }
 bootstrap();
