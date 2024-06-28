@@ -34,7 +34,7 @@ export class ProvidersController {
 
   }
 
-  @MessagePattern({ cmd: '/get_provider_by_id' })
+  @MessagePattern({ cmd: 'get_provider_by_id' })
   async findOne(
     @Payload('id') id: number
   ): Promise<ApiTransactionResponse<IProvider | string>> {
