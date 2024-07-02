@@ -1,5 +1,6 @@
 import { IsNotEmpty,
          IsNumber,
+         IsOptional,
          IsPositive,
          IsString,
          MaxLength,
@@ -59,5 +60,11 @@ export class CreateProductDto {
     @IsNumber({}, { message: "El id del proveedor debe ser numérico" })
     @IsNotEmpty({ message: "El id del proveedor es un campo requerido" })
     public providerId: number;
+
+    //Para procesar las imagenes, ya que tequerimos 2 tupos de Payload, entonces para agrupar
+    //Como al enviarlo por el Microservicio podríamos tener problemas, dejamos el tipado general
+    //en el Gateway, y acá lo recibimos como any PERO lo re convertimos para usarlo
+    @IsOptional()
+    public imagesProducts?: any;
 
 }

@@ -34,22 +34,34 @@ export class ProductsController {
     private readonly cloudinaryService: FilesService
   ) {}
 
+  //* El cargue de imágenes será interceptado desde el Gateway y de allí las enviamos para acá y es acá
+  //* donde haremos las validaciones común y corriente.
   @MessagePattern({ cmd: 'create_product' })
-  @UseInterceptors(FilesInterceptor('imagesProducts', 10)) //TODO -> Revisar para los microservicios
   async create(
-    @Payload() files: Array<Express.Multer.File>, //TODO -> Revisar para los microservicios
     @Payload() createProductDto: CreateProductDto,
   ): Promise<ApiTransactionResponse<IProducts | string | IErrorImages[] | CustomError>> {
 
     let errorsImages: IErrorImages[] = [];
     let imagesNames: string[] = [];
 
-    if (files) {
+    //* Esto lo tuvimod que hacer porque desde el gateway enviamos [{},{},{} ...] 
+    //* pero acá nos está llegando como [[],[],[] ...] y adicional, el buffer no me 
+    //* llegaba como Buffer sino como un objeto, entonces hacemos un reconversión para garantizar la carga
+    let arrayProcess: Express.Multer.File[] = [];
+    for (const iterImgs of createProductDto.imagesProducts) {
+      const obj = {
+        ...iterImgs,
+        buffer: Buffer.from(iterImgs.buffer.data)
+      }
+      arrayProcess.push(obj)
+    }
+
+    if (arrayProcess) {
 
       const maxFileSizeValidator = new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }); // 4 MB
       const fileTypeValidator = new FileTypeValidator({ fileType: '.(png|jpg|jpeg)' });
 
-      for (const iterImgs of files) {
+      for (const iterImgs of arrayProcess) {
             
         if (!maxFileSizeValidator.isValid(iterImgs)) {
           errorsImages.push({
@@ -91,10 +103,10 @@ export class ProductsController {
     }
 
     //? Registramos las imágenes
-    if( files && errorsImages.length == 0 ){
+    if( arrayProcess && errorsImages.length == 0 ){
 
       const product = saveProduct as IProducts;
-      for (const iterImages of files) {
+      for (const iterImages of arrayProcess) {
         
         let executeFile = this.cloudinaryService.uploadFile(iterImages);
 
