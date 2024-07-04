@@ -143,7 +143,7 @@ export class ProductsController {
 
   }
 
-  @MessagePattern({ cmd: '/get_product_by_id' })
+  @MessagePattern({ cmd: 'get_product_by_id' })
   async findOne(
     @Payload('id') id: number
   ): Promise<ApiTransactionResponse<IProducts | string>> {
