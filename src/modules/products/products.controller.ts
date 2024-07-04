@@ -24,7 +24,9 @@ import { FileTypeValidator } from './validators/file-type-validator';
 import { ApiTransactionResponse } from '../../util/ApiResponse';
 import { EResponseCodes } from '../../constants/ResponseCodesEnum';
 import { CustomError } from '../../helpers/errors/custom.error';
-import { IErrorImages, IImagesSimpleTable, IProducts } from './interfaces/products.interface';
+import { IErrorImages,
+         IImagesSimpleTable,
+         IProducts } from './interfaces/products.interface';
 
 @Controller('products')
 export class ProductsController {
@@ -153,23 +155,33 @@ export class ProductsController {
   }
 
   @MessagePattern({ cmd: 'update_product' })
-  @UseInterceptors(FilesInterceptor('imagesProducts', 10)) //TODO -> Revisar para los microservicios
   async update(
-    @Payload() files: Array<Express.Multer.File>, //TODO -> Revisar para los microservicios
     @Payload() updateProductDto: UpdateProductDto
   ): Promise<ApiTransactionResponse<IProducts | string | IErrorImages[] | CustomError>> {
 
     let errorsImages: IErrorImages[] = [];
     let imagesNames: string[] = [];
 
+    //* Esto lo tuvimod que hacer porque desde el gateway enviamos [{},{},{} ...] 
+    //* pero acá nos está llegando como [[],[],[] ...] y adicional, el buffer no me 
+    //* llegaba como Buffer sino como un objeto, entonces hacemos un reconversión para garantizar la carga
+    let arrayProcess: Express.Multer.File[] = [];
+    for (const iterImgs of updateProductDto.imagesProducts) {
+      const obj = {
+        ...iterImgs,
+        buffer: Buffer.from(iterImgs.buffer.data)
+      }
+      arrayProcess.push(obj)
+    }
+
     //1. Si viene imagenes
-    if( files ){
+    if( arrayProcess && arrayProcess.length > 0 ){
       
       //1.1 Validamos imágenes
       const maxFileSizeValidator = new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }); // 4 MB
       const fileTypeValidator = new FileTypeValidator({ fileType: '.(png|jpg|jpeg)' });
 
-      for (const iterImgs of files) {
+      for (const iterImgs of arrayProcess) {
             
         if (!maxFileSizeValidator.isValid(iterImgs)) {
           errorsImages.push({
@@ -199,7 +211,7 @@ export class ProductsController {
 
       //1.2 Borramos los que estén registrados anteriormente (Es decir que desde el Front nos deben garantizar esto)
       const getImages = await this.productsService.imagesByProduct(Number(updateProductDto.id));
-      if( getImages.length > 0 ){
+      if( getImages.length > 0 && arrayProcess ){
 
         //Las removemos de Cloudinary
         for (const iterImages of getImages) {
@@ -219,9 +231,9 @@ export class ProductsController {
       }
 
       //1.3 Registramos nuevamente o registramos la primera vez
-      if( files && errorsImages.length == 0 ){
+      if( arrayProcess && errorsImages.length == 0 ){
 
-        for (const iterImages of files){
+        for (const iterImages of arrayProcess){
 
           let executeFile = this.cloudinaryService.uploadFile(iterImages);
 
