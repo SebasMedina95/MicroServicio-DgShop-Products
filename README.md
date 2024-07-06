@@ -62,18 +62,14 @@ $ docker compose up -d
 
 ## CREACIÓN Y EJECUCIÓN DE MIGRACIONES USANDO PRISMA ##
 - Creación y ejecución de migraciones para la base de datos:
-  - Para crear una migración debemos usar:
-    **NOTA 1:** Se recomienda ejecutar como Administrador.
-    **NOTA 2:** Cambie el DEFINA-NOMBRE-MIGRACION por el nombre que desea dar a la migración.
-    ```
-    npx prisma migrate dev --name DEFINA-NOMBRE-MIGRACION
-    ```
-  - Para ejecutar una migración usamos:
-    **NOTA:** Se recomienda ejecutar como Administrador.
-    ```
-    npx prisma generate
-    ```
-
-## Pendiente ##
-EMPEZAR A TRABAJAR CON LOS SERVICIOS DE LAS CATEGORIAS, PRIMERO DEBEMOS PODER GESTIONAR 
-LAS CATEGORÍAS PARA LUEGO GESTIONAR LOS PRODUCTOS
+- Para crear una migración debemos usar:
+  **NOTA 1:** Se recomienda ejecutar como Administrador.
+  **NOTA 2:** Cambie el DEFINA-NOMBRE-MIGRACION por el nombre que desea dar a la migración.
+  ```
+  npx prisma migrate dev --name DEFINA-NOMBRE-MIGRACION
+  ```
+- Para ejecutar una migración usamos:
+  **NOTA:** Se recomienda ejecutar como Administrador.
+  ```
+  npx prisma generate
+  ```
