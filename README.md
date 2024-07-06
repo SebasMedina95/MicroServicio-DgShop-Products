@@ -2,10 +2,12 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
 
-## DESCRIPCIÓN DEL PROYECTO ##
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+## DESCRIPCIÓN GENERAL DEL PROYECTO ##
+Este proyecto será el de una tienda de comercio digital, en la cual se venderá productos de ropa, tanto para hombre como para mujeres y niños, se generará una estructura de trabajo donde manejaremos los productos, a que categoría pertenencen y también que proveedor suministra el artículo a la tienda, gestionando de este modo las compras también al almacen. En este orden de ideas, se implementará también la generación de ordenes para la venta de diferentes artículos, la estructura de las ventas y un sistema de manejo de usuarios, tanto para que los clientes se registren y compren como también para los adeministradores del sistema.
 
-It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).
+## DESCRIPCIÓN DEL MÓDULO ##
+Este es el módulo para el manejo de productos, categorías y proveedores.
+``Nota: ``Posiblemente aquí coloquemos el sistema de compras para surtir el local (Aún se discute)
 
 ``Desarrollado por``: [Juan Sebastian Medina Toro](https://www.linkedin.com/in/juan-sebastian-medina-toro-887491249/).
 
