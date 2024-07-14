@@ -15,7 +15,7 @@ async function bootstrap() {
       }
     }
   );
-  const logger = new Logger('Bootstrap')
+  const logger = new Logger('MicroServicios-Productos')
 
   //? Alias de la aplicación
   // app.setGlobalPrefix('api-ms-dgshop/products/v1'); //* Ya no nos funciona por MicroService
